@@ -185,7 +185,10 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
-const children=[{name:'Roy',balance:0,log:[],dd:0,dw:0},{name:'Tommy',balance:0,log:[],dd:0,dw:0},{name:'Emma',balance:0,log:[],dd:0,dw:0}];
+const defaultChildren=[{name:'Roy',balance:0,log:[],dd:0,dw:0},{name:'Tommy',balance:0,log:[],dd:0,dw:0},{name:'Emma',balance:0,log:[],dd:0,dw:0}];
+function loadData(){try{const d=localStorage.getItem('familyPoints');if(d)return JSON.parse(d);} catch(e){}return JSON.parse(JSON.stringify(defaultChildren));}
+function saveData(){try{localStorage.setItem('familyPoints',JSON.stringify(children));}catch(e){}}
+const children=loadData();
 
 function getNext(b){
   if(b>=5000){const n=Math.ceil((b+1)/250)*250,p=Math.ceil((b-5000+1)/1000)*1000+5000;return{pts:Math.min(n,p),label:n<=p?'Ice Cream':'Platinum Date'};}
@@ -206,9 +209,9 @@ function checkMilestone(i,ob,nb){
 }
 function showM(e,t,d){document.getElementById('milestoneEmoji').textContent=e;document.getElementById('milestoneTitle').textContent=t;document.getElementById('milestoneDesc').textContent=d;document.getElementById('milestoneOverlay').style.display='flex';}
 function closeMilestone(){document.getElementById('milestoneOverlay').style.display='none';}
-function earn(i,a){const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive'});checkMilestone(i,o,children[i].balance);render();}
-function deduct(i,a){children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});render();}
-function resetChild(i){if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});render();}
+function earn(i,a){const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive'});checkMilestone(i,o,children[i].balance);saveData();render();}
+function deduct(i,a){children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});saveData();render();}
+function resetChild(i){if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});saveData();render();}
 function render(){
   const g=document.getElementById('trackerGrid');g.innerHTML='';
   children.forEach((ch,i)=>{
