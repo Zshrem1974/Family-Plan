@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Points System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--blue:#007DCC;--gold:#FFB900;--magenta:#D10056;--deep:#B2054C;--white:#FFFFFF;--dark:#1A1A2E;--lblue:#E0F2FE;--lgold:#FFF8E0;--lmag:#FDE2EF;--gray:#6C757D;}
+  body{font-family:'Inter',system-ui,sans-serif;background:#F4F5F7;color:var(--dark);line-height:1.5;}
+  .hero{background:linear-gradient(135deg,var(--blue) 0%,#0098F0 100%);color:#000;text-align:center;padding:3rem 1.5rem;position:relative;overflow:hidden;}
+  .hero::before{content:'★ ★ ★ ★ ★';position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:1.2rem;color:var(--gold);letter-spacing:1.5rem;}
+  .hero h1{font-size:2.8rem;font-weight:900;margin-top:1rem;letter-spacing:-0.02em;}
+  .hero p{font-size:1.15rem;color:var(--gold);margin-top:0.5rem;font-weight:600;}
+  .container{max-width:900px;margin:0 auto;padding:1.5rem;}
+  .tabs{display:flex;gap:0;background:var(--dark);border-radius:12px 12px 0 0;overflow:hidden;margin-top:2rem;position:sticky;top:0;z-index:10;}
+  .tab{flex:1;padding:0.9rem 0.5rem;text-align:center;font-weight:700;font-size:0.85rem;color:rgba(255,255,255,0.6);cursor:pointer;transition:all 0.2s;border:none;background:transparent;text-transform:uppercase;letter-spacing:0.05em;font-family:inherit;}
+  .tab:hover{color:rgba(255,255,255,0.9);}
+  .tab.active{color:var(--gold);background:rgba(255,255,255,0.08);box-shadow:inset 0 -3px 0 var(--gold);}
+  .panel{display:none;animation:fadeIn 0.3s ease;}.panel.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .card{background:white;border-radius:12px;padding:1.5rem;margin:1rem 0;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+  .card h2{font-size:1.3rem;font-weight:800;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;}
+  .earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;}
+  @media(max-width:600px){.earn-grid{grid-template-columns:1fr;}}
+  .earn-item{background:var(--lblue);border-radius:10px;padding:1rem;display:flex;align-items:flex-start;gap:0.75rem;}
+  .earn-item .icon{width:36px;height:36px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#000;font-size:1.1rem;flex-shrink:0;}
+  .earn-item strong{display:block;font-weight:700;}
+  .earn-item span{font-size:0.85rem;color:#555;}
+  .bonus-box{background:linear-gradient(135deg,var(--gold),#FFD54F);border-radius:10px;padding:1.25rem;margin-top:1rem;color:var(--dark);}
+  .bonus-box h3{font-weight:800;font-size:1.1rem;margin-bottom:0.4rem;}
+  .bonus-box p{font-size:0.9rem;}
+  .deduction-row{display:flex;justify-content:space-between;align-items:center;padding:0.7rem 0.75rem;border-radius:8px;margin-bottom:0.35rem;font-size:0.95rem;}
+  .deduction-row:nth-child(odd){background:var(--lmag);}
+  .deduction-row:nth-child(even){background:#FFF5F3;}
+  .deduction-row .pts{font-weight:800;color:var(--magenta);min-width:40px;text-align:right;}
+  .reward-track{position:relative;padding-left:2.5rem;}
+  .reward-track::before{content:'';position:absolute;left:1rem;top:0;bottom:0;width:4px;background:linear-gradient(to bottom,var(--blue),var(--gold),var(--magenta));border-radius:4px;}
+  .reward-step{position:relative;padding:0.9rem 1rem;margin-bottom:0.75rem;background:white;border-radius:10px;border:2px solid #E8E8E8;transition:transform 0.2s;}
+  .reward-step:hover{transform:translateX(4px);}
+  .reward-step::before{content:'';position:absolute;left:-2rem;top:50%;transform:translateY(-50%);width:16px;height:16px;border-radius:50%;border:3px solid var(--blue);background:white;}
+  .reward-step.gold::before{border-color:var(--gold);background:var(--gold);}
+  .reward-step.mag::before{border-color:var(--magenta);background:var(--magenta);}
+  .reward-step.platinum{border-color:var(--deep);background:var(--deep);color:#000;}
+  .reward-step.platinum::before{border-color:var(--gold);background:var(--gold);}
+  .reward-step .pts-label{font-weight:800;font-size:1rem;}
+  .reward-step .reward-name{font-weight:600;}
+  .reward-step .reward-note{font-size:0.8rem;color:#888;}
+  .reward-step.platinum .reward-note{color:rgba(0,0,0,0.65);}
+  .reset-section{background:var(--deep);border-radius:12px;padding:1.5rem;color:#000;margin:1rem 0;}
+  .reset-section h2{color:#000;}
+  .reset-item{background:rgba(255,255,255,0.12);border-radius:8px;padding:0.7rem 1rem;margin-bottom:0.4rem;font-size:0.95rem;display:flex;align-items:center;gap:0.6rem;}
+  .reset-item .x{font-weight:900;font-size:1.1rem;color:var(--gold);}
+  .reset-warn{background:white;color:var(--deep);border-radius:8px;padding:0.75rem 1rem;margin-top:1rem;font-weight:700;text-align:center;font-size:0.9rem;}
+  .tracker-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin:1rem 0;}
+  @media(max-width:600px){.tracker-grid{grid-template-columns:1fr;}}
+  .child-card{background:white;border-radius:12px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-align:center;}
+  .child-card h3{font-size:1.1rem;font-weight:800;margin-bottom:0.75rem;}
+  .balance{font-size:2.2rem;font-weight:900;color:var(--blue);margin:0.5rem 0;}
+  .balance-controls{display:flex;gap:0.4rem;justify-content:center;margin-top:0.75rem;flex-wrap:wrap;}
+  .btn{border:none;border-radius:8px;padding:0.45rem 0.75rem;font-weight:700;font-size:0.8rem;cursor:pointer;transition:opacity 0.2s;font-family:inherit;}
+  .btn:hover{opacity:0.85;}
+  .btn-earn{background:var(--blue);color:#000;}
+  .btn-deduct{background:var(--magenta);color:#000;}
+  .btn-reset{background:var(--deep);color:#000;font-size:0.7rem;}
+  .next-milestone{background:#E8E8E8;border-radius:8px;padding:0.5rem 0.75rem;font-size:0.75rem;color:#555;margin-top:0.5rem;}
+  .progress-bar{height:6px;background:#ddd;border-radius:3px;margin-top:0.35rem;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width 0.4s ease;}
+  .log-list{max-height:120px;overflow-y:auto;margin-top:0.5rem;}
+  .log-entry{font-size:0.7rem;color:#888;padding:0.1rem 0;border-bottom:1px solid #f0f0f0;}
+  .log-entry.positive{color:var(--blue);}.log-entry.negative{color:var(--magenta);}.log-entry.reset{color:var(--deep);font-weight:700;}
+  .milestone-alert{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn 0.3s;}
+  .milestone-popup{background:white;border-radius:16px;padding:2.5rem;text-align:center;max-width:400px;animation:popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);}
+  @keyframes popIn{from{transform:scale(0.8);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .milestone-popup .emoji{font-size:3rem;margin-bottom:0.5rem;}
+  .milestone-popup h2{font-size:1.4rem;margin-bottom:0.5rem;}
+  .milestone-popup p{color:#666;margin-bottom:1rem;}
+  .milestone-popup .btn{padding:0.6rem 2rem;font-size:1rem;}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>Family Points System</h1>
+  <p>Be Kind • Work Hard • Earn Big</p>
+</div>
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('earn',this)">Earn</button>
+    <button class="tab" onclick="showTab('lose',this)">Lose</button>
+    <button class="tab" onclick="showTab('rewards',this)">Rewards</button>
+    <button class="tab" onclick="showTab('reset',this)">Reset</button>
+    <button class="tab" onclick="showTab('tracker',this)">Tracker</button>
+  </div>
+
+  <div id="earn" class="panel active">
+    <div class="card">
+      <h2>⭐ Ways to Earn Points</h2>
+      <p style="margin-bottom:1rem;color:#666;">Every action earns <strong>+5 points</strong>. Parents can give more for awesome stuff!</p>
+      <div class="earn-grid">
+        <div class="earn-item"><div class="icon">📚</div><div><strong>Ace a Test</strong><span>Score 90–100%</span></div></div>
+        <div class="earn-item"><div class="icon">💛</div><div><strong>Sibling Kindness</strong><span>Share, help, be considerate</span></div></div>
+        <div class="earn-item"><div class="icon">🚪</div><div><strong>Good Manners</strong><span>Hold doors, let others go first</span></div></div>
+        <div class="earn-item"><div class="icon">🛡️</div><div><strong>Stand Up Right</strong><span>Against bullying, be respectful</span></div></div>
+        <div class="earn-item"><div class="icon">🧹</div><div><strong>Do Your Chores</strong><span>Complete daily tasks</span></div></div>
+        <div class="earn-item"><div class="icon">🤝</div><div><strong>Be Helpful</strong><span>Any helpful act a parent notices</span></div></div>
+      </div>
+      <div class="bonus-box">
+        <h3>🔥 Multiplier Bonuses</h3>
+        <p><strong>Daily Double:</strong> Zero deductions today? Your day's points get doubled!</p>
+        <p><strong>Weekly Double:</strong> Zero deductions all week? Doubled again!</p>
+        <p style="margin-top:0.5rem;"><strong>They stack!</strong> A perfect week = up to 4x your base points.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="lose" class="panel">
+    <div class="card">
+      <h2 style="color:var(--magenta);">📉 Point Deductions</h2>
+      <p style="margin-bottom:1rem;color:#666;">These take away points — and cancel your Daily or Weekly Double.</p>
+      <div class="deduction-row"><span>Whining</span><span class="pts">−5</span></div>
+      <div class="deduction-row"><span>Unkind words / teasing / arguing</span><span class="pts">−5</span></div>
+      <div class="deduction-row"><span>Not following directions first time</span><span class="pts">−5</span></div>
+      <div class="deduction-row"><span>Leaving stuff in common areas</span><span class="pts">−5</span></div>
+      <div class="deduction-row"><span>Screen time rule violations</span><span class="pts">−10</span></div>
+      <div class="deduction-row"><span>Unfinished chores</span><span class="pts">−10</span></div>
+      <div class="deduction-row"><span>Bedtime resistance</span><span class="pts">−10</span></div>
+      <div class="deduction-row"><span>Major disruption or outburst</span><span class="pts">−15</span></div>
+      <div class="deduction-row"><span>Not doing homework</span><span class="pts">−20</span></div>
+      <p style="margin-top:1rem;font-size:0.85rem;color:#888;font-style:italic;">Points can never go below zero. Only a parent can excuse homework.</p>
+    </div>
+  </div>
+
+  <div id="rewards" class="panel">
+    <div class="card">
+      <h2 style="color:var(--gold);">🏆 Rewards Ladder</h2>
+      <p style="margin-bottom:1.25rem;color:#666;">Milestones unlock automatically. Ice cream every 250!</p>
+      <div class="reward-track">
+        <div class="reward-step"><div class="pts-label" style="color:var(--blue);">250 pts</div><div class="reward-name">🍦 Ice Cream Treat</div><div class="reward-note">Repeats every 250 points!</div></div>
+        <div class="reward-step gold"><div class="pts-label" style="color:var(--gold);">500 pts</div><div class="reward-name">🎁 Five Below Toy Choice</div><div class="reward-note">Pick any toy — replaces ice cream at 500</div></div>
+        <div class="reward-step"><div class="pts-label" style="color:var(--blue);">750 pts</div><div class="reward-name">🍦 Ice Cream Treat</div><div class="reward-note">Back to ice cream!</div></div>
+        <div class="reward-step gold"><div class="pts-label" style="color:var(--gold);">1,000 pts</div><div class="reward-name">🍽️ Family Dining Outing</div><div class="reward-note">The whole family goes out for a special meal</div></div>
+        <div class="reward-step mag"><div class="pts-label" style="color:var(--magenta);">5,000 pts</div><div class="reward-name">🎯 Target Toy Shopping Spree</div><div class="reward-note">THE GRAND PRIZE!</div></div>
+        <div class="reward-step platinum"><div class="pts-label" style="color:var(--gold);">★ PLATINUM — Every 1,000 after 5,000</div><div class="reward-name">💎 1-on-1 Date with Mom or Dad</div><div class="reward-note">Just the two of you. Special time together.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="reset" class="panel">
+    <div class="reset-section">
+      <h2>⚠️ FULL RESET — Points Go to ZERO</h2>
+      <p style="margin-bottom:1rem;opacity:0.85;">These are instant. No warnings. No matter how many points you have.</p>
+      <div class="reset-item"><span class="x">✕</span> Lying — any deliberate dishonesty</div>
+      <div class="reset-item"><span class="x">✕</span> Stealing — taking what isn't yours</div>
+      <div class="reset-item"><span class="x">✕</span> Smoking — cigarettes, vapes, anything</div>
+      <div class="reset-item"><span class="x">✕</span> Not supporting the family when it really matters</div>
+      <div class="reset-item"><span class="x">✕</span> Not putting family first in serious situations</div>
+      <div class="reset-item"><span class="x">✕</span> Disrespecting your parents</div>
+      <div class="reset-item"><span class="x">✕</span> Disobeying without explaining why first</div>
+      <div class="reset-warn">THE EXPLANATION RULE: You CAN disagree with a parent — but you MUST explain your reasoning BEFORE you act differently.</div>
+    </div>
+  </div>
+
+  <div id="tracker" class="panel">
+    <div class="card" style="text-align:center;padding:1rem;">
+      <p style="color:#888;font-size:0.85rem;">This tracker is for demo purposes — points are logged by parents on the printed ledger.</p>
+    </div>
+    <div class="tracker-grid" id="trackerGrid"></div>
+  </div>
+</div>
+
+<div id="milestoneOverlay" class="milestone-alert" style="display:none;" onclick="closeMilestone()">
+  <div class="milestone-popup" onclick="event.stopPropagation()">
+    <div class="emoji" id="milestoneEmoji">🍦</div>
+    <h2 id="milestoneTitle">Milestone!</h2>
+    <p id="milestoneDesc"></p>
+    <button class="btn btn-earn" onclick="closeMilestone()">Awesome!</button>
+  </div>
+</div>
+
+<script>
+function showTab(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  el.classList.add('active');
+}
+const children=[{name:'Child 1',balance:0,log:[],dd:0,dw:0},{name:'Child 2',balance:0,log:[],dd:0,dw:0},{name:'Child 3',balance:0,log:[],dd:0,dw:0}];
+
+function getNext(b){
+  if(b>=5000){const n=Math.ceil((b+1)/250)*250,p=Math.ceil((b-5000+1)/1000)*1000+5000;return{pts:Math.min(n,p),label:n<=p?'Ice Cream':'Platinum Date'};}
+  for(const t of[250,500,750,1000,1250,1500,1750,2000,2250,2500,2750,3000,3250,3500,3750,4000,4250,4500,4750,5000]){
+    if(b<t){if(t===500)return{pts:t,label:'Five Below Toy'};if(t===1000)return{pts:t,label:'Family Dinner'};if(t===5000)return{pts:t,label:'Target Spree'};return{pts:t,label:'Ice Cream'};}
+  }return{pts:b+250,label:'Ice Cream'};
+}
+function checkMilestone(i,ob,nb){
+  if(nb<=ob)return;
+  const oi=Math.floor(ob/250),ni=Math.floor(nb/250);
+  if(ni>oi){const h=ni*250;
+    if(h===500)showM('🎁','Five Below Toy!',children[i].name+' picks any toy!');
+    else if(h===1000)showM('🍽️','Family Dinner Out!',children[i].name+' earned a family dining outing!');
+    else if(h===5000)showM('🎯','TARGET SPREE!',children[i].name+' earned a Target toy shopping spree!');
+    else showM('🍦','Ice Cream Time!',children[i].name+' earned an ice cream treat!');
+  }
+  if(nb>5000){const op=ob<=5000?0:Math.floor((ob-5000)/1000),np=Math.floor((nb-5000)/1000);if(np>op)showM('💎','PLATINUM!',children[i].name+' earned a 1-on-1 date with Mom or Dad!');}
+}
+function showM(e,t,d){document.getElementById('milestoneEmoji').textContent=e;document.getElementById('milestoneTitle').textContent=t;document.getElementById('milestoneDesc').textContent=d;document.getElementById('milestoneOverlay').style.display='flex';}
+function closeMilestone(){document.getElementById('milestoneOverlay').style.display='none';}
+function earn(i,a){const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive'});checkMilestone(i,o,children[i].balance);render();}
+function deduct(i,a){children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});render();}
+function resetChild(i){if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});render();}
+function render(){
+  const g=document.getElementById('trackerGrid');g.innerHTML='';
+  children.forEach((ch,i)=>{
+    const nx=getNext(ch.balance),prev=Math.floor(ch.balance/250)*250,prog=nx.pts>prev?((ch.balance-prev)/(nx.pts-prev))*100:0;
+    const logs=ch.log.slice(0,10).map(l=>'<div class="log-entry '+l.type+'">'+l.text+'</div>').join('');
+    g.innerHTML+='<div class="child-card"><h3>'+ch.name+'</h3><div class="balance">'+ch.balance.toLocaleString()+'</div><div class="next-milestone">Next: '+nx.label+' at '+nx.pts.toLocaleString()+' pts<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div></div><div class="balance-controls"><button class="btn btn-earn" onclick="earn('+i+',5)">+5</button><button class="btn btn-earn" onclick="earn('+i+',10)">+10</button><button class="btn btn-earn" onclick="earn('+i+',25)">+25</button><button class="btn btn-deduct" onclick="deduct('+i+',5)">−5</button><button class="btn btn-deduct" onclick="deduct('+i+',10)">−10</button><button class="btn btn-reset" onclick="resetChild('+i+')">RESET</button></div><div class="log-list">'+logs+'</div></div>';
+  });
+}
+render();
+</script>
+</body>
+</html>
