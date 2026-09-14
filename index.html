@@ -212,12 +212,25 @@ function closeMilestone(){document.getElementById('milestoneOverlay').style.disp
 function earn(i,a){const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive'});checkMilestone(i,o,children[i].balance);saveData();render();}
 function deduct(i,a){children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});saveData();render();}
 function resetChild(i){if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});saveData();render();}
+function dailyDouble(i){
+  if(children[i].dd>0){alert(children[i].name+' had deductions today — no Daily Double.');return;}
+  const earned=children[i].log.filter(l=>l.type==='positive'&&l.text.match(/pts earned/)).reduce((s,l)=>s+parseInt(l.text),0);
+  const bonus=Math.max(5,earned);const old=children[i].balance;children[i].balance+=bonus;
+  children[i].log.unshift({text:'+'+bonus+' Daily Double!',type:'positive'});
+  checkMilestone(i,old,children[i].balance);saveData();render();
+}
+function weeklyDouble(i){
+  if(children[i].dw>0){alert(children[i].name+' had deductions this week — no Weekly Double.');return;}
+  const old=children[i].balance;const bonus=Math.round(old*0.25)||5;children[i].balance+=bonus;
+  children[i].log.unshift({text:'+'+bonus+' Weekly Double!',type:'positive'});
+  checkMilestone(i,old,children[i].balance);saveData();render();
+}
 function render(){
   const g=document.getElementById('trackerGrid');g.innerHTML='';
   children.forEach((ch,i)=>{
     const nx=getNext(ch.balance),prev=Math.floor(ch.balance/250)*250,prog=nx.pts>prev?((ch.balance-prev)/(nx.pts-prev))*100:0;
     const logs=ch.log.slice(0,10).map(l=>'<div class="log-entry '+l.type+'">'+l.text+'</div>').join('');
-    g.innerHTML+='<div class="child-card"><h3>'+ch.name+'</h3><div class="balance">'+ch.balance.toLocaleString()+'</div><div class="next-milestone">Next: '+nx.label+' at '+nx.pts.toLocaleString()+' pts<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div></div><div class="balance-controls"><button class="btn btn-earn" onclick="earn('+i+',5)">+5</button><button class="btn btn-earn" onclick="earn('+i+',10)">+10</button><button class="btn btn-earn" onclick="earn('+i+',25)">+25</button><button class="btn btn-deduct" onclick="deduct('+i+',5)">−5</button><button class="btn btn-deduct" onclick="deduct('+i+',10)">−10</button><button class="btn btn-reset" onclick="resetChild('+i+')">RESET</button></div><div class="log-list">'+logs+'</div></div>';
+    g.innerHTML+='<div class="child-card"><h3>'+ch.name+'</h3><div class="balance">'+ch.balance.toLocaleString()+'</div><div class="next-milestone">Next: '+nx.label+' at '+nx.pts.toLocaleString()+' pts<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div></div><div class="balance-controls"><button class="btn btn-earn" onclick="earn('+i+',5)">+5</button><button class="btn btn-earn" onclick="earn('+i+',10)">+10</button><button class="btn btn-earn" onclick="earn('+i+',25)">+25</button><button class="btn btn-deduct" onclick="deduct('+i+',5)">−5</button><button class="btn btn-deduct" onclick="deduct('+i+',10)">−10</button><button class="btn btn-reset" onclick="resetChild('+i+')">RESET</button></div><div class="balance-controls" style="margin-top:0.3rem;"><button class="btn" style="background:var(--gold);color:var(--dark);font-weight:800;" onclick="dailyDouble('+i+')">d ×</button><button class="btn" style="background:var(--gold);color:var(--dark);font-weight:800;" onclick="weeklyDouble('+i+')">w ×</button></div><div class="log-list">'+logs+'</div></div>';
   });
 }
 render();
