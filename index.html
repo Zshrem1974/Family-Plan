@@ -189,8 +189,9 @@ const defaultChildren=[{name:'Roy',balance:0,log:[]},{name:'Tommy',balance:0,log
 function loadData(){try{const d=localStorage.getItem('familyPoints');if(d)return JSON.parse(d);}catch(e){}return JSON.parse(JSON.stringify(defaultChildren));}
 function saveData(){try{localStorage.setItem('familyPoints',JSON.stringify(children));}catch(e){}}
 const children=loadData();
-function todayStr(){return new Date().toISOString().slice(0,10);}
-function getMonday(){const d=new Date();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().slice(0,10);}
+function edtNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));}
+function todayStr(){return edtNow().toISOString().slice(0,10);}
+function getMonday(){const d=edtNow();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().slice(0,10);}
 function hasDeductionsToday(i){const t=todayStr();return children[i].log.some(l=>l.type==='negative'&&l.ts&&l.ts.slice(0,10)===t);}
 function hasDeductionsThisWeek(i){const mon=getMonday();return children[i].log.some(l=>l.type==='negative'&&l.ts&&l.ts.slice(0,10)>=mon);}
 function todayEarnings(i){const t=todayStr();return children[i].log.filter(l=>l.type==='positive'&&l.ts&&l.ts.slice(0,10)===t&&l.text.match(/pts earned/)).reduce((s,l)=>s+parseInt(l.text),0);}
