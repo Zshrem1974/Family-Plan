@@ -216,17 +216,18 @@ function checkMilestone(i,ob,nb){
 }
 function showM(e,t,d){document.getElementById('milestoneEmoji').textContent=e;document.getElementById('milestoneTitle').textContent=t;document.getElementById('milestoneDesc').textContent=d;document.getElementById('milestoneOverlay').style.display='flex';}
 function closeMilestone(){document.getElementById('milestoneOverlay').style.display='none';}
-function earn(i,a){const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive',ts:new Date().toISOString()});checkMilestone(i,o,children[i].balance);saveData();render();}
-function deduct(i,a){children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});saveData();render();}
-function resetChild(i){if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});saveData();render();}
+function checkPin(){const p=prompt('Enter parent PIN:');return p==='9474';}
+function earn(i,a){if(!checkPin())return;const o=children[i].balance;children[i].balance+=a;children[i].log.unshift({text:'+'+a+' pts earned',type:'positive',ts:new Date().toISOString()});checkMilestone(i,o,children[i].balance);saveData();render();}
+function deduct(i,a){if(!checkPin())return;children[i].balance=Math.max(0,children[i].balance-a);children[i].dd++;children[i].dw++;children[i].log.unshift({text:'−'+a+' pts deducted',type:'negative'});saveData();render();}
+function resetChild(i){if(!checkPin())return;if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});saveData();render();}
 function dailyDouble(i){
-  if(hasDeductionsToday(i)){alert(children[i].name+' had deductions today — no Daily Double.');return;}
+  if(!checkPin())return;if(hasDeductionsToday(i)){alert(children[i].name+' had deductions today — no Daily Double.');return;}
   const earned=todayEarnings(i);const bonus=Math.max(5,earned);const old=children[i].balance;
   children[i].balance+=bonus;children[i].log.unshift({text:'+'+bonus+' Daily Double!',type:'positive',ts:new Date().toISOString()});
   checkMilestone(i,old,children[i].balance);saveData();render();
 }
 function weeklyDouble(i){
-  if(hasDeductionsThisWeek(i)){alert(children[i].name+' had deductions this week — no Weekly Double.');return;}
+  if(!checkPin())return;if(hasDeductionsThisWeek(i)){alert(children[i].name+' had deductions this week — no Weekly Double.');return;}
   const earned=weekEarnings(i);const bonus=Math.max(5,earned);const old=children[i].balance;
   children[i].balance+=bonus;children[i].log.unshift({text:'+'+bonus+' Weekly Double!',type:'positive',ts:new Date().toISOString()});
   checkMilestone(i,old,children[i].balance);saveData();render();
