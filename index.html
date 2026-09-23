@@ -185,8 +185,19 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
-const defaultChildren=[{name:'Roy',balance:0,log:[]},{name:'Tommy',balance:0,log:[]},{name:'Emma',balance:0,log:[]}];
-function loadData(){try{const d=localStorage.getItem('familyPoints');if(d)return JSON.parse(d);}catch(e){}return JSON.parse(JSON.stringify(defaultChildren));}
+const defaultChildren=[{name:'Roy',balance:160,log:[{text:'+160 Starting balance',type:'positive',ts:new Date().toISOString()}]},{name:'Tommy',balance:50,log:[{text:'+50 Starting balance',type:'positive',ts:new Date().toISOString()}]},{name:'Emma',balance:110,log:[{text:'+110 Starting balance',type:'positive',ts:new Date().toISOString()}]}];
+function loadData(){
+  try{
+    const v=localStorage.getItem('familyPointsV');
+    const d=localStorage.getItem('familyPoints');
+    if(v==='2'&&d)return JSON.parse(d);
+    localStorage.setItem('familyPointsV','2');
+    const fresh=JSON.parse(JSON.stringify(defaultChildren));
+    localStorage.setItem('familyPoints',JSON.stringify(fresh));
+    return fresh;
+  }catch(e){}
+  return JSON.parse(JSON.stringify(defaultChildren));
+}
 function saveData(){try{localStorage.setItem('familyPoints',JSON.stringify(children));}catch(e){}}
 const children=loadData();
 function edtNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));}
