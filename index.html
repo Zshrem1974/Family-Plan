@@ -233,14 +233,18 @@ function deduct(i,a){if(!checkPin())return;children[i].balance=Math.max(0,childr
 function resetChild(i){if(!checkPin())return;if(!confirm('Reset '+children[i].name+"'s points to ZERO? This cannot be undone."))return;children[i].balance=0;children[i].log.unshift({text:'FULL RESET — points to 0',type:'reset'});saveData();render();}
 function dailyDouble(i){
   if(!checkPin())return;if(hasDeductionsToday(i)){alert(children[i].name+' had deductions today — no Daily Double.');return;}
-  const earned=todayEarnings(i);const bonus=Math.max(5,earned);const old=children[i].balance;
-  children[i].balance+=bonus;children[i].log.unshift({text:'+'+bonus+' Daily Double!',type:'positive',ts:new Date().toISOString()});
+  const earned=todayEarnings(i);
+  if(earned<=0){alert(children[i].name+' has no points earned today to double.');return;}
+  const old=children[i].balance;children[i].balance+=earned;
+  children[i].log.unshift({text:'+'+earned+' Daily Double! (doubled today\'s '+earned+')',type:'positive',ts:new Date().toISOString()});
   checkMilestone(i,old,children[i].balance);saveData();render();
 }
 function weeklyDouble(i){
   if(!checkPin())return;if(hasDeductionsThisWeek(i)){alert(children[i].name+' had deductions this week — no Weekly Double.');return;}
-  const earned=weekEarnings(i);const bonus=Math.max(5,earned);const old=children[i].balance;
-  children[i].balance+=bonus;children[i].log.unshift({text:'+'+bonus+' Weekly Double!',type:'positive',ts:new Date().toISOString()});
+  const earned=weekEarnings(i);
+  if(earned<=0){alert(children[i].name+' has no points earned this week to double.');return;}
+  const old=children[i].balance;children[i].balance+=earned;
+  children[i].log.unshift({text:'+'+earned+' Weekly Double! (doubled this week\'s '+earned+')',type:'positive',ts:new Date().toISOString()});
   checkMilestone(i,old,children[i].balance);saveData();render();
 }
 function render(){
