@@ -185,21 +185,26 @@ function showTab(id,el){
   document.getElementById(id).classList.add('active');
   el.classList.add('active');
 }
-const defaultChildren=[{name:'Roy',balance:160,log:[{text:'+160 Starting balance',type:'positive',ts:new Date().toISOString()}]},{name:'Tommy',balance:50,log:[{text:'+50 Starting balance',type:'positive',ts:new Date().toISOString()}]},{name:'Emma',balance:110,log:[{text:'+110 Starting balance',type:'positive',ts:new Date().toISOString()}]}];
-function loadData(){
+const SUPA_URL='https://ejyruscqxvuaumhytsua.supabase.co/rest/v1/family_points';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqeXJ1c2NxeHZ1YXVtaHl0c3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0Mzk0NDcsImV4cCI6MjEwMTAxNTQ0N30.uJ7PXigvI4OzkpNzKklWX62pBzvDaFpC0zOGxBGmM9Q';
+const SUPA_HEADERS={'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+const defaultChildren=[{name:'Roy',balance:160,log:[]},{name:'Tommy',balance:50,log:[]},{name:'Emma',balance:215,log:[]}];
+let children=JSON.parse(JSON.stringify(defaultChildren));
+let loaded=false;
+
+async function loadFromCloud(){
   try{
-    const v=localStorage.getItem('familyPointsV');
-    const d=localStorage.getItem('familyPoints');
-    if(v==='2'&&d)return JSON.parse(d);
-    localStorage.setItem('familyPointsV','2');
-    const fresh=JSON.parse(JSON.stringify(defaultChildren));
-    localStorage.setItem('familyPoints',JSON.stringify(fresh));
-    return fresh;
-  }catch(e){}
-  return JSON.parse(JSON.stringify(defaultChildren));
+    const r=await fetch(SUPA_URL+'?id=eq.main&select=data',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
+    const rows=await r.json();
+    if(rows&&rows.length>0&&rows[0].data){children=rows[0].data;loaded=true;render();}
+  }catch(e){console.error('Load failed',e);}
 }
-function saveData(){try{localStorage.setItem('familyPoints',JSON.stringify(children));}catch(e){}}
-const children=loadData();
+async function saveData(){
+  try{
+    await fetch(SUPA_URL+'?id=eq.main',{method:'PATCH',headers:SUPA_HEADERS,body:JSON.stringify({data:children,updated_at:new Date().toISOString()})});
+  }catch(e){console.error('Save failed',e);}
+}
+loadFromCloud();
 function edtNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));}
 function todayStr(){return edtNow().toISOString().slice(0,10);}
 function getMonday(){const d=edtNow();const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);return new Date(d.setDate(diff)).toISOString().slice(0,10);}
