@@ -196,14 +196,16 @@ async function loadFromCloud(){
   try{
     const r=await fetch(SUPA_URL+'?id=eq.main&select=data',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}});
     const rows=await r.json();
-    if(rows&&rows.length>0&&rows[0].data){children=rows[0].data;loaded=true;render();}
-  }catch(e){console.error('Load failed',e);}
+    if(rows&&rows.length>0&&rows[0].data){children=rows[0].data;loaded=true;}
+  }catch(e){console.error('Load failed',e);loaded=true;}
+  render();
 }
 async function saveData(){
   try{
     await fetch(SUPA_URL+'?id=eq.main',{method:'PATCH',headers:SUPA_HEADERS,body:JSON.stringify({data:children,updated_at:new Date().toISOString()})});
   }catch(e){console.error('Save failed',e);}
 }
+document.getElementById('trackerGrid').innerHTML='<div style="text-align:center;padding:2rem;color:#888;grid-column:1/-1;">Loading from cloud...</div>';
 loadFromCloud();
 function edtNow(){return new Date(new Date().toLocaleString('en-US',{timeZone:'America/New_York'}));}
 function todayStr(){return edtNow().toISOString().slice(0,10);}
@@ -256,7 +258,6 @@ function render(){
     g.innerHTML+='<div class="child-card"><h3>'+ch.name+'</h3><div class="balance">'+ch.balance.toLocaleString()+'</div><div class="next-milestone">Next: '+nx.label+' at '+nx.pts.toLocaleString()+' pts<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div></div><div class="balance-controls"><button class="btn btn-earn" onclick="earn('+i+',5)">+5</button><button class="btn btn-earn" onclick="earn('+i+',10)">+10</button><button class="btn btn-earn" onclick="earn('+i+',25)">+25</button><button class="btn btn-deduct" onclick="deduct('+i+',5)">−5</button><button class="btn btn-deduct" onclick="deduct('+i+',10)">−10</button><button class="btn btn-reset" onclick="resetChild('+i+')">RESET</button></div><div class="balance-controls" style="margin-top:0.3rem;"><button class="btn" style="background:var(--gold);color:var(--dark);font-weight:800;" onclick="dailyDouble('+i+')">d ×</button><button class="btn" style="background:var(--gold);color:var(--dark);font-weight:800;" onclick="weeklyDouble('+i+')">w ×</button></div><div class="log-list">'+logs+'</div></div>';
   });
 }
-render();
 </script>
 </body>
 </html>
